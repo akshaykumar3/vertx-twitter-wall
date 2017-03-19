@@ -31,4 +31,6 @@ Here are the configurations:
 - `app.consumerKey`: your consumer key of Twitter API
 - `app.consumerSecret`: your consumer secret key of Twitter API
 
+## Credit
 
+Some frontend architecture is inspired from [@yunyul](https://github.com/yunyul).
