@@ -1,4 +1,4 @@
-package io.vertx.scala.tw
+package io.vertx.scala.tw.service
 
 import io.vertx.lang.scala.json.{JsonArray, JsonObject}
 import io.vertx.scala.ext.web.client.WebClient
@@ -6,12 +6,17 @@ import io.vertx.scala.ext.web.codec.BodyCodec
 
 import scala.concurrent.{ExecutionContext, Future}
 
+/**
+  * A simple tweet search service trait.
+  *
+  * @tparam R type of result
+  */
 trait TweetSearchService[R] {
   def search(q: String): Future[R]
 }
 
 /**
-  * Tweet search service.
+  * Implementation of tweet search service (by hash tag).
   *
   * @author Eric Zhao
   */
@@ -20,6 +25,7 @@ class TweetSearchServiceImpl(client: WebClient, token: String, implicit val exec
   override def search(q: String): Future[JsonArray] = {
     client.getAbs("https://api.twitter.com/1.1/search/tweets.json")
       .as(BodyCodec.jsonObject())
+      .timeout(8888L)
       .addQueryParam("q", s"%23$q")
       .putHeader("Authorization", s"Bearer $token")
       .sendFuture()

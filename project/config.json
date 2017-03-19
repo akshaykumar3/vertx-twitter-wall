@@ -1,6 +1,6 @@
 {
   "app.port": 8080,
-  "app.update.interval": 10000,
-  "app.consumerKey": "xxxx",
-  "app.consumerSecret": "yyyy"
+  "app.update.interval": 80000,
+  "app.consumerKey": "my_key",
+  "app.consumerSecret": "my_secret"
 }

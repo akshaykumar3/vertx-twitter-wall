@@ -2,10 +2,13 @@ package io.vertx.scala.tw
 
 import io.vertx.lang.scala.ScalaVerticle
 import io.vertx.lang.scala.json.JsonArray
-import io.vertx.scala.ext.web.client.WebClient
+import io.vertx.scala.core.net.ProxyOptions
+import io.vertx.scala.ext.web.client.{WebClient, WebClientOptions}
 import io.vertx.scala.ext.web.{Router, RoutingContext}
 import io.vertx.scala.ext.web.handler.StaticHandler
 import io.vertx.scala.ext.web.handler.sockjs.{BridgeOptions, PermittedOptions, SockJSHandler}
+import io.vertx.scala.tw.entity.RequestToken
+import io.vertx.scala.tw.service.{TweetSearchService, TweetSearchServiceImpl, TwitterAuthServiceImpl}
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
@@ -22,10 +25,10 @@ class TwitterWallVerticle extends ScalaVerticle {
 
   override def startFuture(): Future[Unit] = {
     val router = Router.router(vertx)
-    val client = WebClient.create(vertx)
+    val clientOptions = WebClientOptions().setSsl(true)
+    val client = WebClient.create(vertx, clientOptions)
 
     val authService = new TwitterAuthServiceImpl(client, executionContext)
-
 
     val bridgeOptions = BridgeOptions()
       .addOutboundPermitted(PermittedOptions().setAddress("address.to.client"))
@@ -38,6 +41,7 @@ class TwitterWallVerticle extends ScalaVerticle {
     router.route("/api/hashtag/:q").handler(apiSearchByHashTag)
     router.route().handler(StaticHandler.create())
 
+    // Get request token from the configuration file.
     val rtkOpt = for {
       cKey <- Option(config.getString("app.consumerKey"))
       cSecret <- Option(config.getString("app.consumerSecret"))
@@ -48,7 +52,7 @@ class TwitterWallVerticle extends ScalaVerticle {
         authService.auth(rtk)
           .map(token => {
             searchService = new TweetSearchServiceImpl(client, token.accessToken, executionContext)
-            vertx.setPeriodic(updateInterval, _ => pushTweets())
+            vertx.setPeriodic(updateInterval, _ => pushTweets()) // Start timer for fetching tweets.
           })
           .flatMap(_ => createServer(router, port))
           .map(_ => ())
@@ -65,7 +69,8 @@ class TwitterWallVerticle extends ScalaVerticle {
 
 
   private def pushTweets(): Unit = searchService.search(hashTag) onComplete {
-    case Success(tweet) => vertx.eventBus().publish("address.to.client", tweet)
+    case Success(tweet) =>
+      vertx.eventBus().publish("address.to.client", tweet.encode())
     case Failure(ex) => ex.printStackTrace()
   }
 

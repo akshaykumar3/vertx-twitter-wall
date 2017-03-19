@@ -1,13 +1,20 @@
-package io.vertx.scala.tw
+package io.vertx.scala.tw.util
 
 import java.util.Base64
 
+import io.vertx.scala.tw.entity.RequestToken
+
 import scala.util.Try
 
+/**
+  * Helper object for implicit conversion.
+  *
+  * @author Eric Zhao
+  */
 object Implicits {
 
   implicit class RequestTokenConverter(rtk: RequestToken) {
-    def encode: String = s"${rtk.consumerKey.base64Encode}:${rtk.consumerSecret.base64Encode}"
+    def encode: String = s"${rtk.consumerKey}:${rtk.consumerSecret}".base64Encode
   }
 
   implicit class StringImplicits(str: String) {

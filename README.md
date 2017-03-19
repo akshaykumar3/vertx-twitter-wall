@@ -1,20 +1,25 @@
 # Vert.x Twitter Wall
 
-A simple Twitter application written in Vert.x Scala.
+A simple Twitter Wall application written in Vert.x Scala.
 
 ## Build
 
 To build the code and generate package:
 
 ```
-sbt assembly
+sbt clean assembly
 ```
 
-Then you can run the application directly:
+Before running the application, you need to put your Twitter OAuth credentials in the config file. 
+Then you can run the application directly in terminal:
 
 ```
 java -jar target/scala-2.12/vertx-twitter-wall-assembly-1.0.jar -conf project/config.json
 ```
+
+Now you can visit the Twitter Wall in the browser:
+
+![Vert.x Twitter Wall](docs/twitter-wall-demo.png)
 
 ## Configuration
 
@@ -23,7 +28,7 @@ Here are the configurations:
 
 - `app.port`: the port of the application, by default **8080**
 - `app.update.interval`: the interval of fetching the latest tweets
-- `app.consumerKey`: consumer key of Twitter API
-- `app.consumerSecret`: consumer secret key of Twitter API
+- `app.consumerKey`: your consumer key of Twitter API
+- `app.consumerSecret`: your consumer secret key of Twitter API
 
 

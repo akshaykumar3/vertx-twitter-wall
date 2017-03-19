@@ -1,0 +1,26 @@
+.text-center {
+  text-align: center;
+}
+
+.tweet-head {
+
+}
+
+.tweet-time {
+  float: right;
+}
+
+.tweet-avatar {
+  padding-top: 5px;
+  position: relative;
+  float: left;
+}
+
+.tweet-avatar img {
+  width: 20px !important;
+  height: 20px !important;
+}
+
+.tweet-body {
+
+}
