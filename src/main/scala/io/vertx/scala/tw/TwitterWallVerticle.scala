@@ -2,11 +2,10 @@ package io.vertx.scala.tw
 
 import io.vertx.lang.scala.ScalaVerticle
 import io.vertx.lang.scala.json.JsonArray
-import io.vertx.scala.core.net.ProxyOptions
 import io.vertx.scala.ext.web.client.{WebClient, WebClientOptions}
-import io.vertx.scala.ext.web.{Router, RoutingContext}
 import io.vertx.scala.ext.web.handler.StaticHandler
 import io.vertx.scala.ext.web.handler.sockjs.{BridgeOptions, PermittedOptions, SockJSHandler}
+import io.vertx.scala.ext.web.{Router, RoutingContext}
 import io.vertx.scala.tw.entity.RequestToken
 import io.vertx.scala.tw.service.{TweetSearchService, TweetSearchServiceImpl, TwitterAuthServiceImpl}
 
@@ -23,6 +22,8 @@ class TwitterWallVerticle extends ScalaVerticle {
   private var hashTag = "vertx"
   private var searchService: TweetSearchService[JsonArray] = _
 
+  private val SOCKJS_ADDRESS = "address.to.client"
+
   override def startFuture(): Future[Unit] = {
     val router = Router.router(vertx)
     val clientOptions = WebClientOptions().setSsl(true)
@@ -31,7 +32,7 @@ class TwitterWallVerticle extends ScalaVerticle {
     val authService = new TwitterAuthServiceImpl(client, executionContext)
 
     val bridgeOptions = BridgeOptions()
-      .addOutboundPermitted(PermittedOptions().setAddress("address.to.client"))
+      .addOutboundPermitted(PermittedOptions().setAddress(SOCKJS_ADDRESS))
     val port = config.getInteger("app.port", 8080)
     val updateInterval = config.getLong("app.update.interval", 5000L)
 
@@ -62,15 +63,14 @@ class TwitterWallVerticle extends ScalaVerticle {
 
   private def apiSearchByHashTag(context: RoutingContext): Unit = context.request().getParam("q") match {
     case Some(tag) =>
-      hashTag = tag
+      hashTag = tag // This is thread-safe in Vert.x thread model.
       pushTweets()
     case None => context.fail(400) // Bad request.
   }
 
-
   private def pushTweets(): Unit = searchService.search(hashTag) onComplete {
     case Success(tweet) =>
-      vertx.eventBus().publish("address.to.client", tweet.encode())
+      vertx.eventBus().publish(SOCKJS_ADDRESS, tweet.encode())
     case Failure(ex) => ex.printStackTrace()
   }
 

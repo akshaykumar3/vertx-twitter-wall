@@ -3,6 +3,7 @@ package io.vertx.scala.tw.service
 import io.vertx.lang.scala.json.{JsonArray, JsonObject}
 import io.vertx.scala.ext.web.client.WebClient
 import io.vertx.scala.ext.web.codec.BodyCodec
+import io.vertx.scala.tw.util.Logging
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -20,7 +21,8 @@ trait TweetSearchService[R] {
   *
   * @author Eric Zhao
   */
-class TweetSearchServiceImpl(client: WebClient, token: String, implicit val executionContext: ExecutionContext) extends TweetSearchService[JsonArray] {
+class TweetSearchServiceImpl(client: WebClient, token: String, implicit val executionContext: ExecutionContext)
+  extends TweetSearchService[JsonArray] with Logging {
 
   override def search(q: String): Future[JsonArray] = {
     client.getAbs("https://api.twitter.com/1.1/search/tweets.json")

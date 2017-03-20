@@ -1,5 +1,7 @@
 # Vert.x Twitter Wall
 
+[![Build Status](https://travis-ci.org/sczyh30/vertx-twitter-wall.svg?branch=master)](https://travis-ci.org/sczyh30/vertx-twitter-wall)
+
 A simple Twitter Wall application written in Vert.x Scala.
 
 ## Build
